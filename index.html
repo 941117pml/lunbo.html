@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+	<title>轮播图效果</title>
+	<script type="text/javascript" src="../js/jquery.1.10.2.js"></script>
+	<style type="text/css">
+		*{ margin: 0; padding: 0; text-decoration: none;}
+        body { padding: 20px;}
+		#container{
+			width: 600px;
+			height: 400px;
+			border: 1px solid #cccccc;
+			position: relative;
+			overflow: hidden;
+		}
+		#list{
+			width: 4200px;
+			height: 330px;
+			position: absolute;;
+			z-index: 1;
+		}
+		#list img{float: left;}
+		#buttons{
+			height: 10px;
+			width: 100px;
+			position: absolute;
+			z-index: 2;
+			bottom: 20px;
+			left:250px;
+		}
+		#buttons span {
+			cursor: pointer; 
+			float: left; 
+			border: 1px solid #fff; 
+			width: 10px; 
+			height: 10px; 
+			border-radius: 50%; 
+			background: #333;
+			margin-right: 5px;
+		}
+		#buttons .on{
+			background: red;
+		}
+		.arrow{
+			cursor: pointer; 
+			display: none; 
+			line-height: 39px; 
+			text-align: center; 
+			font-size: 36px; 
+			font-weight: bold; 
+			width: 40px;
+			height: 40px;  
+			position: absolute; 
+			z-index: 2; 
+			top: 180px; 
+			background-color: RGBA(0,0,0,.3); 
+			color: #fff;
+		}
+		#container:hover .arrow{
+			display: block;
+		}
+		.arrow:hover{
+			background-color: RGBA(0,0,0,.7);
+		}
+		#prev{left: 20px;}
+		#next{right:20px;}
+	</style>
+	<script type="text/javascript">
+	window.onload=function() {
+		var container=document.getElementById('container');
+		var list=document.getElementById('list');
+		var buttons=document.getElementById('buttons').getElementsByTagName('span');
+		var prev=document.getElementById('prev');
+		var next=document.getElementById('next');
+		var index=1;//与小圆点对应
+		var animated=false;//控制在动画过程中，不会做其他的动作
+		var timer;//定时器，鼠标离开会自动滑动
+
+ 		function animate(offset){//对应于左右边的上一页或下一页
+ 			animated=true;
+ 			var newLeft=parseInt(list.style.left)+offset;//新的值等于旧的值加上偏移量
+ 			var time=300;
+ 			var interval=10;
+ 			var speed=offset/(time/interval);
+
+ 			function go(){
+ 				if((speed<0&&parseInt(list.style.left)>newLeft)||(speed>0&&parseInt(list.style.left)<newLeft)){
+ 					list.style.left=parseInt(list.style.left)+speed+'px';
+ 					setTimeout(go,interval);
+ 				}
+ 				else{
+ 					animated=false;
+ 					list.style.left=newLeft+'px';              	 	
+ 					if(newLeft>-600){//归位
+ 					list.style.left=-3000+'px';
+ 					}
+ 					if(newLeft<-3000){
+ 					list.style.left=-600+'px';
+ 					}
+ 				}
+ 			}
+ 				go();	
+ 				}
+ 			
+ 		function play(){
+ 			timer=setInterval(function(){
+ 				next.onclick();
+ 			},2000);//定时器，每隔2秒就会自动执行
+ 		}
+ 		function stop(){
+ 			clearInterval(timer);//清除定时器
+ 		}
+ 		container.onmouseover=stop;
+ 		container.onmouseout=play;
+ 		play();
+ 		
+		next.onclick=function(){//点击下一张，图片偏移量减少600
+			if(index==5){//
+				index=1;
+			}
+			else{
+			index +=1;//点击下一张，指引加1，小圆点对应亮起	
+			}
+			showButton();
+			if(!animated){animate(-600);}
+			
+		}
+		prev.onclick=function(){//点击上一张，图片偏移量增加600
+			if(index==1){//要判断小圆点是否在1~5个以内
+				index=5;
+			}
+			else{
+			index -=1;//点击上一张，指引减1，小圆点亮起	
+			}
+			showButton();
+			if(!animated){animate(600);}
+			
+	}
+		function showButton(){
+			for(var i=0;i<buttons.length;i++){//for循环，在button亮起前，首先要判断前一个是否亮起，若是亮起，则应该将其灭掉
+				if(buttons[i].className=='on'){
+					buttons[i].className='';
+					break;
+				}
+			}
+			buttons[index-1].className='on';//小的button亮起,button是一个数组，下标要减1
+	}
+
+		for(var i=0;i<buttons.length;i++){//点击小圆点，触发事件
+			if(this.className=='on'){//点开时是哪个点，就不用跑下面的程序。起到的是代码优化作用
+				return;
+			}
+			buttons[i].onclick=function(){
+				var myIndex=parseInt(this.getAttribute('index'));
+				var offset=-600*(myIndex-index);
+				if(!animated){animate(offset);}
+				index=myIndex;//将现在的index更新为现有的
+				showButton();//将相应的button亮起
+			}
+	}
+}	
+	</script>
+</head>
+<body>
+<div id="container">
+	<div id="list" style="left:-600px">
+		<img src="../img/4.jpg" alt="1"/>
+		<img src="../img/1.jpg" alt="1"/>
+		<img src="../img/2.jpg" alt="2"/>
+		<img src="../img/3.jpg" alt="3"/>
+		<img src="../img/4.jpg" alt="4"/>
+		<img src="../img/1.jpg" alt="5"/>
+	</div>
+	<div id="buttons">
+		<span index="1" class="on"></span>
+		<span index="2"></span>
+		<span index="3"></span>
+		<span index="4"></span>
+	</div>
+	<a href="javascript:;" class="arrow" id="prev">&lt;</a>
+	<a href="javascript:;" class="arrow" id="next">&gt;</a>
+</div>
+</body>
+</html>
